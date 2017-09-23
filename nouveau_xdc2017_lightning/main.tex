@@ -1,0 +1,94 @@
+\documentclass[aspectratio=169,english]{beamer}
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepackage{xifthen}
+\usepackage{newunicodechar}
+\usepackage{textcomp}
+\usepackage[absolute,overlay]{textpos}
+
+\newunicodechar{°}{\textdegree}
+\newunicodechar{µ}{\textmu}
+
+\newcommand*{\ft}{\frametitle{\secname}}
+\newcommand*{\ftsub}[1]{\frametitle{\secname\ - #1}}
+\newcommand*{\itemp}{\item}
+%\newcommand*{\itemp}{\pause\item}
+\newcommand*{\+}{\texttt{+}}
+
+\newcommand{\sectionframeimpl}[2]{
+	\begin{frame}
+	#1
+	\begin{itemize}
+	#2
+	\end{itemize}
+	\end{frame}
+}
+\newcommand{\sectionframe}[2]{
+	\section{#1}
+	\sectionframeimpl{\ft}{#2}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\mode<presentation> {
+\usetheme{Madrid}
+\usecolortheme{spruce}
+}
+
+\begin{document}
+
+\title[Nouveau]{XDC 2017 Lightning Talk \\ Nouveau \\ Status update}
+\date{}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\sectionframe{OpenGL 4.5 conformance testing}{
+	\itemp Current status on the mustpass list for Kepler:
+	\begin{itemize}
+		\itemp Passed: 6422/6516 (98.6\%)
+		\itemp Failed: 36/6516 (0.6\%)
+	\end{itemize}
+	\itemp Most failures in Mesa's common code
+	\itemp Missing feature in Nouveau: Support for 3D Images on Fermi/Kepler
+}
+
+\sectionframe{Pascal support}{
+	\itemp Modesetting support landed:
+	\begin{itemize}
+		\itemp 4.8: GP100, GP104
+		\itemp 4.10: GP102, GP106, GP107
+		\itemp 4.12: GP10B
+		\itemp 4.14: GP108
+	\end{itemize}
+	\itemp Graphics acceleration firmwares released a year after launch date (March 2016) except for GP108
+	\itemp Power management firmware still missing, preventing:
+	\begin{itemize}
+		\itemp Fan management
+		\itemp Reclocking
+	\end{itemize}
+}
+
+\sectionframe{Relations with Nvidia} {
+	\itemp NVIDIA changes prevent us from releasing a driver (Maxwell2\+):
+	\begin{itemize}
+		\itemp Signed firmwares accessible publicly but not redistributable
+		\itemp Reverse engineering of vbios impossible
+	\end{itemize}
+     \itemp NVIDIA prefers developing its own open source driver (\textbf{nvgpu})
+	\itemp Communication mostly down:
+	\begin{itemize}
+		\itemp Main contact/dev left NVIDIA (Alexandre Courbot)
+		\itemp Most important requests left unanswered...
+		\itemp ... until more complete code than wanted lands publicly in \textbf{nvgpu} weeks later
+	\end{itemize}
+	\itemp Can NVIDIA please understand upstream development increases its value?
+}
+
+\end{document}
