@@ -1,0 +1,106 @@
+\documentclass[aspectratio=169,english]{beamer}
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepackage{xifthen}
+\usepackage{newunicodechar}
+\usepackage{textcomp}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xparse}
+
+\newunicodechar{°}{\textdegree}
+\newunicodechar{µ}{\textmu}
+
+\newcommand*{\ft}{\frametitle{\secname}}
+\newcommand*{\ftsub}[1]{\frametitle{\secname\ - #1}}
+\newcommand*{\itemp}{\item}
+%\newcommand*{\itemp}{\pause\item}
+\newcommand*{\+}{\texttt{+}}
+
+\newcommand{\sectionframeimpl}[2]{
+	\begin{frame}
+	#1
+	\begin{itemize}
+	#2
+	\end{itemize}
+	\end{frame}
+}
+\NewDocumentCommand{\sectionframe}{s m m}{
+	\IfBooleanTF{#1} {
+		\section*{#2}
+	} {
+		\section{#2}
+	}
+	\sectionframeimpl{\ft}{#3}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\mode<presentation>{
+	\usetheme{Pittsburgh}
+	\usecolortheme{seagull}
+}
+
+\begin{document}
+
+\title{Mesa/Rusticl}
+\author{Jason Ekstrand, Karol Herbst}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\sectionframe{Rusticl}{
+	\itemp A new OpenCL 3.0 implementation written in Rust
+	\itemp Entirely SPIR-V based
+	\itemp To run on all Mesa supported hardware
+	\itemp Be available by default in distributions
+	\itemp Conformance filed for $FULL\_PROFILE$ Intel 12th gen
+	\itemp \href{https://www.youtube.com/watch?v=Es7UmvNAEvk}{XDC talk}
+}
+
+\sectionframe{TODOs}{
+	\itemp Enable support for $cl\_khr\_il\_program$
+	\begin{itemize}
+		\itemp Potential CTS bug: \href{https://github.com/KhronosGroup/OpenCL-CTS/issues/1548}{github.com/KhronosGroup/OpenCL-CTS/issues/1548}
+	\end{itemize}
+	\itemp Implement SVM for chip-spv and SyCL
+	\itemp Make it pass CTS on AMD hardware in $FULL\_PROFILE$
+	\itemp Fix remaining bugs running on Vulkan (passing 99.5\% of all CTS)
+	\begin{itemize}
+		\itemp local and private memory is hard (new vulkan ext needed?)
+		\itemp API provided local mem requires a new pipeline
+		\itemp changing local size as well
+	\end{itemize}
+	\itemp Anything else missing from an ecosystem point of view?
+}
+
+\sectionframe{Discussion}{
+	\itemp Discussions:
+	\begin{itemize}
+		\itemp When to enable by default?
+		\begin{itemize}
+			\itemp Support for proper function call (compiling big kernels/lot of builtins)
+			\itemp Running a list of apps without issues
+			\itemp ...
+		\end{itemize}
+		\itemp How to make use of it in desktop apps?
+		\begin{itemize}
+			\itemp Darktable
+			\itemp What other FOSS app should make use of OpenCL?
+		\end{itemize}
+		\itemp Which companies/members are willing to help out?
+		\begin{itemize}
+			\itemp Mesa's backend compilers need work for function call support
+			\itemp Fix remaining API validation bugs (CTS needs more tests)
+			\itemp Optimizations?
+		\end{itemize}
+	\end{itemize}
+	\itemp Any other points or questions?
+}
+
+\end{document}

@@ -1,0 +1,190 @@
+\documentclass[aspectratio=169,english]{beamer}
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepackage{xifthen}
+\usepackage{newunicodechar}
+\usepackage{textcomp}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xparse}
+
+\newunicodechar{°}{\textdegree}
+\newunicodechar{µ}{\textmu}
+
+\newcommand*{\ft}{\frametitle{\secname}}
+\newcommand*{\ftsub}[1]{\frametitle{\secname\ - #1}}
+\newcommand*{\itemp}{\item}
+%\newcommand*{\itemp}{\pause\item}
+\newcommand*{\+}{\texttt{+}}
+
+\newcommand{\sectionframeimpl}[2]{
+	\begin{frame}
+	#1
+	\begin{itemize}
+	#2
+	\end{itemize}
+	\end{frame}
+}
+\NewDocumentCommand{\sectionframe}{s m m}{
+	\IfBooleanTF{#1} {
+		\section*{#2}
+	} {
+		\section{#2}
+	}
+	\sectionframeimpl{\ft}{#3}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\mode<presentation>{
+	\usetheme{Pittsburgh}
+	\usecolortheme{seagull}
+}
+
+\begin{document}
+
+\title{Rusticl}
+\subtitle{OpenCL implemented in Rust}
+\author{Karol Herbst}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\sectionframe{State of OpenCL in Mesa - Clover}{
+	\itemp Accepted in 2012 into Mesa
+	\itemp Written in C++
+	\itemp Targets LLVM (AMD) or NIR
+	\itemp some development still happening (around 60 patches/year)
+	\itemp Behaves differently compared to st/mesa
+	\begin{itemize}
+		\itemp $PIPE\_SHADER\_IR\_NIR\_SERIALIZED$
+		\itemp Dynamic pipeloader (only user)
+		\itemp $pipe\_compute\_state$::$req\_local\_mem$
+		\itemp $pipe\_grid\_info$::$input$ for kernel inputs
+	\end{itemize}
+	\itemp Few users, poor support in projects using CL
+}
+
+\sectionframe{Motivation}{
+	\itemp Rust sounded like a lot of fun
+	\itemp Is Rust inside Mesa feasible and sustainable?
+	\itemp Is implementing existing C APIs possible in Rust?
+	\itemp What are the challenges working with C bindings?
+	\itemp There are actually a lot of people asking about OpenCL.
+}
+
+\sectionframe{Why use Rust?}{
+	\itemp If the compiler complains you are doing it wrong, period
+	\itemp Very pleasant developing experience
+	\itemp Enforces Thread and Memory Safety by design
+	\itemp The threading API is a joy
+}
+
+\sectionframe{Rusticl}{
+	\itemp Merged into Mesa in Sept. 2022
+	\itemp A modern OpenCL 3.0 gallium frontend written in Rust
+	\itemp Entirely SPIR-V and NIR based
+	\itemp Tries to be as close as possible to st/mesa
+	\itemp Low API overhead
+	\itemp Images are supported!
+	\itemp OpenCL conformant (Intel 12th gen and radeonsi)
+	\itemp Worker thread architecture, thread private pipe\_context
+}
+
+\sectionframe{Meson}{
+	\itemp Nice integration into existing build system
+	\itemp Rust support good enough
+	\itemp No Third-party Crate support yet
+}
+
+\sectionframe{Supported Drivers}{
+	\itemp Iris
+	\itemp llvmpipe
+	\itemp panfrost (WIP?)
+	\itemp radeonsi (WIP)
+	\itemp nouveau (WIP)
+	\itemp What's the minimum level of support to enable it by default?
+}
+
+\sectionframe{Supported Software}{
+	\itemp Darktable
+	\itemp Gimp
+	\itemp Anything not using OpenCL extensions.. probably
+}
+
+\sectionframe{What is required from drivers}{
+	\itemp Add it inside $src/gallium/targets/rusticl/meson.build$
+	\itemp OpenGL Compute ($PIPE\_CAP\_COMPUTE$)
+	\itemp $PIPE\_SHADER\_IR\_NIR$
+	\itemp some $PIPE\_COMPUTE\_CAPs$
+	\begin{itemize}
+		\itemp $ADDRESS\_BITS$
+		\itemp $MAX\_GLOBAL\_SIZE$
+		\itemp $MAX\_MEM\_ALLOC\_SIZE$
+		\itemp $SUBGROUP\_SIZE$
+	\end{itemize}
+	\itemp $pipe\_context$::$set\_global\_binding$
+	\itemp for FULL\_PROFILE
+	\begin{itemize}
+		\itemp 128 textures
+		\itemp 64 images
+		\itemp 16 samplers
+	\end{itemize}
+	\itemp Function calling in backend compilers
+}
+
+\sectionframe{What is required from drivers Pt. 2}{
+	\itemp $load/store\_global$
+	\itemp For $resource\_map$ (\href{https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/18793}{!18793})
+	\begin{itemize}
+		\itemp $UNSYNCHRONIZED\ |\ COHERENT\ |\ PERSISTENT$
+		\itemp on UMA: $UNSYNCHRONIZED\ |\ DIRECTLY$
+	\end{itemize}
+	\itemp \href{https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/18581}{!18581}
+	\begin{itemize}
+		\itemp $PIPE\_CAP\_SHAREABLE\_SHADER$
+		\itemp $nir\_intrinsic\_load\_kernel\_input$ loading from cb0 or $lower\_uniforms\_to\_ubo$
+		\itemp $pipe\_grid\_info.variable\_shared\_mem$
+	\end{itemize}
+}
+
+\sectionframe{Issues with Bindings}{
+	\itemp $static\ inline$
+	\itemp unsigned instead of enum types
+	\itemp bitfield enums
+	\itemp forward declared OpenCL types
+}
+
+\sectionframe{Issues with other stuff}{
+	\itemp gallium very much 32 bit specific
+	\begin{itemize}
+		\itemp buffers can only have a 31 bit size, 2GB
+		\itemp ...
+	\end{itemize}
+	\itemp $pipe\_transfer$ can't be wrapped nicely
+	\itemp OpenCLs memory API
+	\itemp IDE integration
+}
+
+\sectionframe{TODOs}{
+	\itemp Reduction of Kernel launch overhead !18581
+	\itemp Proper implementation of $clGetKernelWorkGroupInfo$
+	\itemp Improve utilization of the GPU
+	\itemp Emitting less fences
+	\itemp More API Validation
+	\itemp More optional OpenCL features and extensions
+	\itemp Function calling
+	\itemp Make OpenCL "just work"
+	\itemp maybe SyCL?
+}
+
+\sectionframe{Q\&A}{
+	\itemp Any questions?
+}
+
+\end{document}

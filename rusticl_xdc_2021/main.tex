@@ -1,0 +1,82 @@
+\documentclass[aspectratio=169,english]{beamer}
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepackage{xifthen}
+\usepackage{newunicodechar}
+\usepackage{textcomp}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xparse}
+
+\newunicodechar{°}{\textdegree}
+\newunicodechar{µ}{\textmu}
+
+\newcommand*{\ft}{\frametitle{\secname}}
+\newcommand*{\ftsub}[1]{\frametitle{\secname\ - #1}}
+\newcommand*{\itemp}{\item}
+%\newcommand*{\itemp}{\pause\item}
+\newcommand*{\+}{\texttt{+}}
+
+\newcommand{\sectionframeimpl}[2]{
+	\begin{frame}
+	#1
+	\begin{itemize}
+	#2
+	\end{itemize}
+	\end{frame}
+}
+\NewDocumentCommand{\sectionframe}{s m m}{
+	\IfBooleanTF{#1} {
+		\section*{#2}
+	} {
+		\section{#2}
+	}
+	\sectionframeimpl{\ft}{#3}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\mode<presentation>{
+	\usetheme{Madrid}
+	\usecolortheme{whale}
+}
+
+\begin{document}
+
+\title{Rust in Mesa}
+\author{Karol Herbst, Red Hat}
+\date{}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\sectionframe{Goals}{
+	\itemp To learn Rust
+	\itemp Lear more about OpenCL and better understand clover
+	\itemp Figure how to integrate Rust into Mesas code base
+	\itemp[] ... as an API implementation
+	\itemp[] ... as a user of Mesas already existing code
+	\itemp Figure out how well mesons Rust integration works
+	\itemp[] Thanks to Dylan Baker for helping me with some problems
+}
+
+
+\sectionframe{How does it work?}{
+	\itemp rust-bindgen used for generating Mesa and OpenCL bindings
+	\itemp and a bunch of Rust code
+	\itemp \href{https://gitlab.freedesktop.org/karolherbst/mesa/-/tree/rusticl/src/gallium/frontends/rusticl}{https://gitlab.freedesktop.org/karolherbst/mesa/-/tree/rusticl/src/gallium/frontends/rusticl}
+}
+
+\sectionframe{Current Status}{
+	\itemp CL CTS tests doing buffer read/write/copies...
+	\itemp No compiler integration yet (requires Rust bindings for LLVM and NIR)
+	\itemp No support for external crates in meson
+	\itemp No good solution for $static$ $inline$ functions yet
+}
+
+\end{document}

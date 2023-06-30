@@ -1,0 +1,163 @@
+\documentclass[aspectratio=169,english]{beamer}
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepackage{xifthen}
+\usepackage{newunicodechar}
+\usepackage{textcomp}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xparse}
+
+\newunicodechar{°}{\textdegree}
+\newunicodechar{µ}{\textmu}
+
+\newcommand*{\ft}{\frametitle{\secname}}
+\newcommand*{\ftsub}[1]{\frametitle{\secname\ - #1}}
+\newcommand*{\itemp}{\item}
+%\newcommand*{\itemp}{\pause\item}
+\newcommand*{\+}{\texttt{+}}
+
+\newcommand{\sectionframeimpl}[2]{
+	\begin{frame}
+	#1
+	\begin{itemize}
+	#2
+	\end{itemize}
+	\end{frame}
+}
+\NewDocumentCommand{\sectionframe}{s m m}{
+	\IfBooleanTF{#1} {
+		\section*{#2}
+	} {
+		\section{#2}
+	}
+	\sectionframeimpl{\ft}{#3}
+}
+\NewDocumentCommand{\subsectionframe}{s m m}{
+	\IfBooleanTF{#1}{
+		\subsection*{#2}
+	} {
+		\subsection{#2}
+	}
+	\sectionframeimpl{\ftsub{#2}}{#3}
+}
+\NewDocumentCommand{\subsubsectionframe}{s m m}{
+	\IfBooleanTF{#1}{
+		\subsubsection*{#2}
+	} {
+		\subsubsection{#2}
+	}
+	\sectionframeimpl{\ftsub{#2}}{#3}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\mode<presentation>{
+	\usetheme{Madrid}
+	\usecolortheme{spruce}
+}
+
+\begin{document}
+
+\title[Nouveau]{Nouveau}
+\subtitle{The overdue Status update}
+\author{Karol Herbst}
+\date{}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\sectionframe{Goal}{
+	\itemp[] \center Reliable Open-Source driver for Nvidia GPUs
+}
+
+\section{Updates}
+\subsectionframe{Kernel}{
+	\itemp Modesetting support for Turing in 5.1
+	\itemp Atomic modesetting support
+	\itemp Reverse Prime improvements
+}
+
+\subsubsectionframe{NIR}{
+	\itemp added in mesa 19.1
+	\itemp required for OpenCL, Vulkan and GL 4.6 support
+	\itemp can be tested with $NV50\_PROG\_USE\_NIR=1$
+}
+
+\subsubsectionframe{OpenCL}{
+	\itemp added in mesa 19.3 for Fermi and newer
+	\itemp can be enabled with $NOUVEAU\_ENABLE\_CL=1$
+	\itemp still a lot to do
+	\itemp fixing OpenCL CTS fails
+}
+
+\subsectionframe{"Staffing"}{
+	\itemp No big change in paid developers
+	\itemp Intern at RH working on a Nouveau Shader cache
+}
+
+\subsectionframe{community members}{
+	\itemp Big thanks to Ilia for his ongoing contributions!
+	\itemp No new "core" developers
+	\itemp Most old ones moved to other projects
+	\itemp No big contributions from others *sadface*
+}
+
+\subsectionframe{Nvidia-}{
+	\itemp Getting firmware for acceleration needs time
+	\itemp No firmware for Power Management yet
+}
+
+\subsectionframe{Nvidia\+}{
+	\itemp It's improving
+	\itemp Some published documentation: https://github.com/NVIDIA/open-gpu-doc
+	\itemp tagr contributes Tegra code
+	\itemp Random patches from others as well
+}
+
+\sectionframe{Work in progress}{
+	\itemp Pass Khronos CTS for exposing OpenGL 4.4\+
+	\itemp Improving Performance
+	\itemp Building a CI system
+	\itemp OpenCL support
+	\itemp OpenGL on Volta and Turing
+}
+
+\section{Important tasks}
+\subsectionframe{kernel}{
+	\itemp Fixing runpm
+	\itemp Device hot unplugging (eGPU)
+}
+
+\subsectionframe{userspace}{
+	\itemp Fixing multithreading
+	\itemp Vulkan driver
+	\itemp Context recovery
+	\itemp Debugging features
+}
+
+\sectionframe{How to help}{
+	\itemp Own hardware with bugs running Nouveau and fix those
+	\itemp Be interested and motivated
+	\itemp GSoC/EVoC (for students)
+}
+
+\subsectionframe{Good entry level tasks}{
+	\itemp Compiler opts
+	\itemp Making use of GPU GPIOs
+	\itemp Fixing Fan controlling (we have the docs for that) 
+}
+
+\sectionframe*{Links}{
+	\item IRC Channel on freenode: \href{ircs://chat.freenode.net:6697/\#nouveau}{\#nouveau}
+	\item Mailing list: \url{https://lists.freedesktop.org/mailman/listinfo/nouveau}
+	\item Trello Board: \url{https://trello.com/b/ZudRDiTL/nouveau}
+	\item GSoC/EVoC project ideas: \url{https://www.x.org/wiki/SummerOfCodeIdeas/}
+}
+
+\end{document}
